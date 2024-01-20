@@ -1,13 +1,13 @@
 
 CREATE TABLE IF NOT EXISTS places (
-    place SERIAL PRIMARY KEY,
+    place_id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     kind VARCHAR(150) NOT NULL,
     country VARCHAR(150) NOT NULL,
     location VARCHAR(150) NOT NULL,
     address VARCHAR(150) NOT NULL,
-    startTime VARCHAR(150) NOT NULL,
-    endTime VARCHAR(150) NOT NULL,
+    start_time VARCHAR(150) NOT NULL,
+    end_time VARCHAR(150) NOT NULL,
     description TEXT
 );
 
@@ -22,11 +22,16 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS comments (
     comment_id SERIAL PRIMARY KEY,
-    place INT NOT NULL,
+    place_id INT NOT NULL,
     user_id INT NOT NULL,
-    FOREIGN KEY (place) REFERENCES places (place),
+    comment TEXT NOT NULL,
+    FOREIGN KEY (place_id) REFERENCES places (place_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
+
+-- Me olvide de colocar el campo commment! 
+ALTER TABLE comments
+ADD COLUMN comment TEXT NOT NULL;
 
 INSERT INTO places (kind, name, country, location, address, startTime, endTime, description)
 VALUES

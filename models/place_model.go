@@ -7,7 +7,7 @@ type Place struct {
 	Country     string `json:"country"`
 	Location    string `json:"location"`
 	Address     string `json:"address"`
-	StartTime   string `json:"startTime"`
-	EndTime     string `json:"endTime"`
+	StartTime   string `json:"start_time"`
+	EndTime     string `json:"end_time"`
 	Description string `json:"description"`
 }
