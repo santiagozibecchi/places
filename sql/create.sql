@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS comments (
 ALTER TABLE comments
 ADD COLUMN comment TEXT NOT NULL;
 
-INSERT INTO places (kind, name, country, location, address, startTime, endTime, description)
+INSERT INTO places (kind, name, country, location, address, start_time, end_time, description)
 VALUES
   ('pubs', 'El Galpon de la pizza','Argentina', 'Buenos Aires', 'España 123', '18:00', '23:00', 'La mejor Pizza de Buenos Aires'),
   ('pubs', 'Es para vos','Argentina', 'Buenos Aires', 'Mendoza 258', '18:00', '23:00', 'Te gusta tomar, este lugar es para vos!'),
