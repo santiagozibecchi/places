@@ -1,7 +1,9 @@
 package services
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/places/models"
@@ -84,6 +86,23 @@ func GetAllPlaces() ([]models.Place, error) {
 
 	}
 
-	return places, err
+	return places, nil
 }
 
+func DeleteByID(id string) (string, error) {
+	var deletedPlaceName string
+	sqlStatement := `DELETE FROM places WHERE place_id=$1 RETURNING name;`
+
+	err := Db.QueryRow(sqlStatement, id).Scan(&deletedPlaceName)
+
+	if err == sql.ErrNoRows {
+		// Cuando no se encuentra ninguna fila con el ID proporcionado
+		return "", fmt.Errorf("No se encontró ningún lugar con el ID %s", id)
+	} else if err != nil {
+		return "", err
+	}
+
+	fmt.Println("Lugar eliminado:", deletedPlaceName)
+
+	return deletedPlaceName, nil
+}

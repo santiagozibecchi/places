@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/places/models"
 	"github.com/places/services"
 )
@@ -51,4 +52,21 @@ func GetPlaces(w http.ResponseWriter, r *http.Request){
 	*/
 	json.NewEncoder(w).Encode(places)
 
+}
+
+func DeletePlace(w http.ResponseWriter, r *http.Request)  {
+	vars := mux.Vars(r)
+    id := vars["id"]
+
+	deletedPlaceName, err := services.DeleteByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Write([]byte("Error al eliminar el Lugar"))
+		return
+	}
+
+    w.WriteHeader(http.StatusOK)
+	response := fmt.Sprintf("Lugar '%s' eliminado con exito!", deletedPlaceName)
+	fmt.Println(response)
+	w.Write([]byte(response))
 }
