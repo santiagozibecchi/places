@@ -70,3 +70,26 @@ func DeletePlace(w http.ResponseWriter, r *http.Request)  {
 	fmt.Println(response)
 	w.Write([]byte(response))
 }
+
+func UpdatePlace(w http.ResponseWriter, r *http.Request) {
+	// Obtener el ID y los datos actualizados del cuerpo de la solicitud
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var editedPlace models.Place
+	err := json.NewDecoder(r.Body).Decode(&editedPlace)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	updatedRow, err := services.UpdateByID(id, editedPlace)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Formato JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedRow)
+}

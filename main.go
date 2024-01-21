@@ -29,6 +29,7 @@ func main() {
 	router.HandleFunc("/api/v1/places", controllers.CreatePlace).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/places", controllers.GetPlaces).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/places/{id}", controllers.DeletePlace).Methods(http.MethodDelete)
+	router.HandleFunc("/api/v1/places/{id}", controllers.UpdatePlace).Methods(http.MethodPut)
 
 	// Cors
 

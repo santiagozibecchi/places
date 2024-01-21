@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/places/models"
 )
@@ -106,3 +109,62 @@ func DeleteByID(id string) (string, error) {
 
 	return deletedPlaceName, nil
 }
+
+// Actualiza la fila con el ID proporcionado en la tabla places
+func UpdateByID(id string, updatedPlace models.Place) (models.Place, error) {
+    var updatedRow models.Place
+
+    // Obtengo el tipo y el valor del struct REF: 
+	// https://blog.friendsofgo.tech/posts/como-usar-reflection-en-golang/
+	// https://pkg.go.dev/reflect
+
+    t := reflect.TypeOf(updatedPlace)
+    v := reflect.ValueOf(updatedPlace)
+
+    sqlStatement := "UPDATE places SET "
+
+    // Almacenar los valores de los campos que se actualizarán
+    var sqlValues []interface{}
+
+    // Campos del struct 
+    for i := 0; i < t.NumField(); i++ {
+        fieldName := t.Field(i).Name
+        fieldValue := v.Field(i).Interface()
+
+        // Agregar el campo a la consulta solo si el valor no es cero
+        if fieldValue != reflect.Zero(v.Field(i).Type()).Interface() {
+            sqlStatement += fieldName + "=$" + strconv.Itoa(len(sqlValues)+1) + ", "
+            sqlValues = append(sqlValues, fieldValue)
+        }
+    }
+
+    // Eliminar la coma adicional al final de la declaración SQL
+    sqlStatement = strings.TrimSuffix(sqlStatement, ", ")
+    sqlStatement += " WHERE place_id=$" + strconv.Itoa(len(sqlValues)+1) + " RETURNING *;"
+
+	fmt.Println(sqlStatement)
+
+    // Agregar el ID al final de consulta SQL
+    sqlValues = append(sqlValues, id)
+
+    err := Db.QueryRow(sqlStatement, sqlValues...).
+        Scan(&updatedRow.PlaceID,
+			&updatedRow.Name,
+			&updatedRow.Kind,
+			&updatedRow.Country,
+			&updatedRow.Location,
+			&updatedRow.Address,
+			&updatedRow.StartTime,
+			&updatedRow.EndTime,
+			&updatedRow.Description)
+
+    if err != nil {
+        return models.Place{}, err
+    }
+
+    return updatedRow, nil
+}
+
+
+
+
