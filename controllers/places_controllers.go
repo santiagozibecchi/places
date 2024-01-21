@@ -100,7 +100,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedRow, err := services.UpdateByID(id, editedPlace)
+	updatedRow, err := services.UpdatePlaceByID(id, editedPlace)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

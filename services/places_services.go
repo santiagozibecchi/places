@@ -148,8 +148,9 @@ func DeleteByID(id string) (string, error) {
 	return deletedPlaceName, nil
 }
 
+// TODO: Refactorizar esta funcion en utils.go de ser posible... doesnt look easy.. 🤔
 // Actualiza la fila con el ID proporcionado en la tabla places
-func UpdateByID(id string, updatedPlace models.Place) (models.Place, error) {
+func UpdatePlaceByID(id string, updatedPlace models.Place) (models.Place, error) {
     var updatedRow models.Place
 
     // Obtengo el tipo y el valor del struct REF: 
