@@ -40,3 +40,9 @@ front: onFocus => manda una peticion para guardar
 
 --- 
 Tambien es importante saber las especificaciones de que se edita y como se maneja el estado en el front, en base a esto pueden surgir N enpoint especifos.
+
+
+---
+Otra practica que suele utilizarse bastante:
+
+Lo que tambien se suele hacer es controlar un "estado temporal" sobre lo que se edito, de forma totalmente visual. Una vez que se edito x campo, impacta de forma instantanea la DB pero esos cambios no lo vemos reflajados en el front de la misma forma, a menos que capturemos ese cambio y lo dejemos seteado tal cual se edito ese campo de manera visual, dando la sensación que realmente ese cambio ya impacto en el front
