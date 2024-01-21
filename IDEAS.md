@@ -9,6 +9,12 @@ Algunas ideas para ampliar el alcance del proyecto
 * Buscador de usarios
 * Buscador de lugares
 * Documentar todos los endpoints en POSTMAN
+* Separar las rutas del main.go
+* Agregar validacion para los email
+* Agregar validacion para los generos, solo permitir 3 => female, male, other if true especificar tu genero, ademas siempre guardar en minuscula
+
+## Interrogantes 
+* No convendrá guardar toda la data en la db siempre en minuscula 🤔
 
 ## Extras
 
