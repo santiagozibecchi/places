@@ -39,7 +39,10 @@ func main() {
 	router.HandleFunc("/api/v1/users", controllers.CreateUser).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/users/{userId}", controllers.DeleteUser).Methods(http.MethodDelete)
 	router.HandleFunc("/api/v1/users/{userId}", controllers.UpdateUser).Methods(http.MethodPut)
-
+	
+	// Comments
+	router.HandleFunc("/api/v1/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUser).Methods(http.MethodPost)
+	
 	// Cors
 
 	corsOptions := cors.New(cors.Options{
