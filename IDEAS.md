@@ -23,5 +23,9 @@ Algunas ideas para ampliar el alcance del proyecto
 * Dockerizar app
 * Implementar repository
 * Estudiar mongoDB
+* Cantidad de lugares vistos por el usuario, cuales y cuales son los mas vistos
+* Lugares favoritos del usuario
+* Guardar preferencias
+* Incluir API del clima
 
 * Independizar la app de la base de datos, debe funcionar tanto para SQL como mongoDB (bson)
