@@ -29,3 +29,10 @@ Algunas ideas para ampliar el alcance del proyecto
 * Incluir API del clima
 
 * Independizar la app de la base de datos, debe funcionar tanto para SQL como mongoDB (bson)
+
+
+## Hacer uso de middlewares
+
+* w.Header().Set("Content-Type", "application/json") // sería util meter esto en un middleware... en peticiones GET.
+* [mux] http://localhost:8080/api/v1/places/ => Agregar una barra de mas da error 404, habría que evitarlo.
+
