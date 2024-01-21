@@ -79,6 +79,7 @@ func GetAllPlaces() ([]models.Place, error) {
 			&place.StartTime,
 			&place.EndTime,
 			&place.Description,
+			&place.TotalView,
 		)
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
@@ -104,8 +105,6 @@ func DeleteByID(id string) (string, error) {
 	} else if err != nil {
 		return "", err
 	}
-
-	fmt.Println("Lugar eliminado:", deletedPlaceName)
 
 	return deletedPlaceName, nil
 }
@@ -156,7 +155,8 @@ func UpdateByID(id string, updatedPlace models.Place) (models.Place, error) {
 			&updatedRow.Address,
 			&updatedRow.StartTime,
 			&updatedRow.EndTime,
-			&updatedRow.Description)
+			&updatedRow.Description,
+			&updatedRow.TotalView)
 
     if err != nil {
         return models.Place{}, err

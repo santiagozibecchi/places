@@ -10,4 +10,5 @@ type Place struct {
 	StartTime   string `json:"start_time"`
 	EndTime     string `json:"end_time"`
 	Description string `json:"description"`
+	TotalView   string `json:"total_view"`
 }
