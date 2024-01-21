@@ -49,6 +49,45 @@ func CreatePlace(place models.Place) (string, error) {
 	return newPlace, nil 
 }
 
+func updateViewsPerRequest(id string) {
+    sqlStatement := "UPDATE places SET total_view = total_view + 1 WHERE place_id = $1;"
+    _, err := Db.Exec(sqlStatement, id)
+    if err != nil {
+        log.Fatalf("Unable to execute the query. %v\n Err %v", sqlStatement, err)
+    }
+}
+
+func GetPlaceById(id string) (models.Place, error) {
+	
+	updateViewsPerRequest(id)
+
+	var place models.Place
+
+	sqlStatement := `SELECT * FROM places WHERE place_id=$1;`
+
+	err := Db.QueryRow(sqlStatement, id).Scan(
+		&place.PlaceID,
+		&place.Name,
+		&place.Kind,
+		&place.Country,
+		&place.Location,
+		&place.Address,
+		&place.StartTime,
+		&place.EndTime,
+		&place.Description,
+		&place.TotalView,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Place{}, fmt.Errorf("No se encontró ningún lugar con el ID: %s", id)
+		}
+		return models.Place{}, err
+	}
+
+	return place, nil
+}
+
 func GetAllPlaces() ([]models.Place, error) {
 	var places []models.Place
 

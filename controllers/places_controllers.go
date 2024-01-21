@@ -54,6 +54,23 @@ func GetPlaces(w http.ResponseWriter, r *http.Request){
 
 }
 
+func GetSpecificPlace(w http.ResponseWriter, r *http.Request)  {
+	w.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+    placeId := vars["id"]
+
+	place, err := services.GetPlaceById(placeId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		resp := fmt.Sprintf("Error al traer el lugar con el id: %v", placeId)
+		w.Write([]byte(resp))
+		return
+	}
+
+	json.NewEncoder(w).Encode(place)
+}
+
 func DeletePlace(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
     id := vars["id"]
