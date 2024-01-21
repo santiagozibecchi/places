@@ -32,7 +32,7 @@ func CreatePlace(place models.Place) (string, error) {
 	una vez y luego se puede ejecutar eficientemente con diferentes valores
 	*/ 
 	stmt, err := Db.Prepare(`
-	INSERT INTO places (kind, name, country, location, address, startTime, endTime, description) 
+	INSERT INTO places (kind, name, country, location, address, start_time, end_time, description) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
 	RETURNING name`)
 
