@@ -1,0 +1,1 @@
+* Un lugar puede tener el mismo nombre que otro pero no puede tener la misma dirección
