@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -48,7 +47,7 @@ func GetAllUsers() ([]models.User, error) {
 
 	rows, err := Db.Query(sqlStatement)
 	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
+		return []models.User{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
 	}
 
 	// close the statement
@@ -68,7 +67,7 @@ func GetAllUsers() ([]models.User, error) {
 		)
 
 		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
+			return []models.User{}, fmt.Errorf("Unable to scan the row => %v.\nError: %v", sqlStatement, err)
 		}
 
 		// append the movie in the movies slice

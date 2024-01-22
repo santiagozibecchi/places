@@ -18,5 +18,8 @@ Prepare creates a prepared statement for later queries or executions. Multiple q
 Correr psql:
 sudo service postgresql start
 
+Coneccion directa a psql
+psql -h localhost -p 5432 -U role_prueba -d prueba2;
+
 Dumps
 psql -h localhost -p 5432 -U role_prueba -d prueba2 < create.sql

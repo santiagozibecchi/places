@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -49,17 +48,21 @@ func CreatePlace(place models.Place) (string, error) {
 	return newPlace, nil 
 }
 
-func updateViewsPerRequest(id string) {
+func updateViewsPerRequest(id string) (error) {
     sqlStatement := "UPDATE places SET total_view = total_view + 1 WHERE place_id = $1;"
     _, err := Db.Exec(sqlStatement, id)
     if err != nil {
-        log.Fatalf("Unable to execute the query. %v\n Err %v", sqlStatement, err)
+		return fmt.Errorf("Unable to execute the query: %v\n Err %v", sqlStatement, err)
     }
+	return nil
 }
 
 func GetPlaceById(id string) (models.Place, error) {
 	
-	updateViewsPerRequest(id)
+	errMessage := updateViewsPerRequest(id)
+	if errMessage != nil {
+		return models.Place{}, errMessage
+	}
 
 	var place models.Place
 
@@ -98,7 +101,7 @@ func GetAllPlaces() ([]models.Place, error) {
 	*/
 	rows, err := Db.Query(sqlStatement)
 	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
+		return []models.Place{}, fmt.Errorf("Unable to execute the query: %s\n Error: %v", sqlStatement, err)
 	}
 
 	// close the statement
@@ -121,7 +124,7 @@ func GetAllPlaces() ([]models.Place, error) {
 			&place.TotalView,
 		)
 		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
+			return []models.Place{}, fmt.Errorf("Unable to scan the row: %s\n Error: %v", sqlStatement, err)
 		}
 
 		// append the movie in the movies slice
@@ -214,8 +217,7 @@ func GetAllPlacesByName(placeName string) ([]models.Place, error) {
 
 	rows, err := Db.Query(sqlStatement, searchCondition)
 	if err != nil {
-		log.Fatalf("Unable to execute the query => %v. %v", sqlStatement, err)
-		return []models.Place{}, err
+		return []models.Place{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
 	}
 
 	defer rows.Close()
@@ -235,7 +237,7 @@ func GetAllPlacesByName(placeName string) ([]models.Place, error) {
 			&place.TotalView,
 		)
 		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
+			return []models.Place{}, fmt.Errorf("Unable to scan the row %v.\nError: %v", sqlStatement, err)
 		}
 		places = append(places, place)
 	}
