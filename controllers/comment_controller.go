@@ -11,29 +11,34 @@ import (
 	"github.com/places/services"
 )
 
-// TODO: utils.go
-func StringToInt(str string) int {
-
-	resutl, err := strconv.Atoi(str)
-	if err != nil {
-		// TODO!
-		// nunca estoy atrapando el panic!
-		fmt.Printf("Y esto que eesss°?! %v", str)
-		panic(err)
-	}
-	return resutl
+func StringToInt(value string) (int, error) {
+    intValue, err := strconv.Atoi(value)
+    if err != nil {
+        return 0, fmt.Errorf("Error al convertir '%s' a entero: %v", value, err)
+    }
+    return intValue, nil
 }
 
 
 func CreateCommentInPlaceByUser(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
-	// TODO! esta mal, no estoy validando el error de StringToInt!
-    placeId, userId := StringToInt(vars["placeId"]), StringToInt(vars["userId"])
+	
+    placeId, err := StringToInt(vars["placeId"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+	userId, err := StringToInt(vars["userId"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
 	var newComment models.Comment
 
-	err := json.NewDecoder(r.Body).Decode(&newComment)
+	err = json.NewDecoder(r.Body).Decode(&newComment)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
