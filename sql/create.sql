@@ -89,6 +89,3 @@ VALUES
   ('Fernando', 'Cruz', 'fernando.cruz@example.com', 'fernandocruz', 'male'),
   ('Marta', 'Ortega', 'marta.ortega@example.com', 'martaortega', 'female'),
   ('Juan', 'Reyes', 'juan.reyes@example.com', 'juanreyes', 'male');
-
-pg_dump
-psql -h localhost -p 5432 -U role_prueba -d prueba2 < create.sql
