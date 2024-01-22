@@ -84,7 +84,6 @@ func DeletePlace(w http.ResponseWriter, r *http.Request)  {
 
     w.WriteHeader(http.StatusOK)
 	response := fmt.Sprintf("Lugar '%s' eliminado con exito!", deletedPlaceName)
-	fmt.Println(response)
 	w.Write([]byte(response))
 }
 
@@ -109,4 +108,23 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	// Formato JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(updatedRow)
+}
+
+func SearchPlaces(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+	placeName := vars["placeName"]
+
+
+	places, err := services.GetAllPlacesByName(placeName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		resp := fmt.Sprintf("Error al buscar los lugares con el placaName: %v", placeName)
+		w.Write([]byte(resp))
+		return
+	}
+
+	json.NewEncoder(w).Encode(places)
+
 }

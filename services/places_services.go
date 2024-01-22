@@ -205,6 +205,44 @@ func UpdatePlaceByID(id string, updatedPlace models.Place) (models.Place, error)
     return updatedRow, nil
 }
 
+func GetAllPlacesByName(placeName string) ([]models.Place, error) {
+	var places []models.Place
+
+	// TODO! Funciona pero me parece que funcionaria mejor una regrex
+	sqlStatement := `SELECT * FROM places WHERE name ILIKE $1`
+	searchCondition := "%" + placeName + "%"
+
+	rows, err := Db.Query(sqlStatement, searchCondition)
+	if err != nil {
+		log.Fatalf("Unable to execute the query => %v. %v", sqlStatement, err)
+		return []models.Place{}, err
+	}
+
+	defer rows.Close()
+
+	var place models.Place
+	for rows.Next() {
+		err = rows.Scan(
+			&place.PlaceID,
+			&place.Name,
+			&place.Kind,
+			&place.Country,
+			&place.Location,
+			&place.Address,
+			&place.StartTime,
+			&place.EndTime,
+			&place.Description,
+			&place.TotalView,
+		)
+		if err != nil {
+			log.Fatalf("Unable to scan the row. %v", err)
+		}
+		places = append(places, place)
+	}
+
+	return places, nil
+}
+
 
 
 

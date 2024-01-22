@@ -28,9 +28,11 @@ func StringToInt(str string) int {
 func CreateCommentInPlaceByUser(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
+	// TODO! esta mal, no estoy validando el error de StringToInt!
     placeId, userId := StringToInt(vars["placeId"]), StringToInt(vars["userId"])
 
 	var newComment models.Comment
+
 	err := json.NewDecoder(r.Body).Decode(&newComment)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
