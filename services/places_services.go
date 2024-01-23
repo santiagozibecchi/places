@@ -7,8 +7,10 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/places/models"
+	"github.com/places/utils"
 )
 
 // Devuelve el nombre de la pelicula
@@ -48,8 +50,8 @@ func CreatePlace(place models.Place) (string, error) {
 	return newPlace, nil 
 }
 
-func updateViewsPerRequest(id string) (error) {
-    sqlStatement := "UPDATE places SET total_view = total_view + 1 WHERE place_id = $1;"
+func updateViewsPerRequest(id string, field string) (error) {
+    sqlStatement := fmt.Sprintf("UPDATE places SET %s = %s + 1 WHERE place_id = $1;", field, field)
     _, err := Db.Exec(sqlStatement, id)
     if err != nil {
 		return fmt.Errorf("Unable to execute the query: %v\n Err %v", sqlStatement, err)
@@ -58,9 +60,16 @@ func updateViewsPerRequest(id string) (error) {
 }
 
 func GetPlaceById(id string) (models.Place, error) {
+
+	// TODO! Deberia verificar si el ID existe primero!
 	
-	errMessage := updateViewsPerRequest(id)
+	errMessage := updateViewsPerRequest(id, "total_view")
 	if errMessage != nil {
+		return models.Place{}, errMessage
+	}
+
+	errToUpdateView := determinateNumberOfViewsLastMinute(id)
+	if errToUpdateView != nil {
 		return models.Place{}, errMessage
 	}
 
@@ -79,6 +88,7 @@ func GetPlaceById(id string) (models.Place, error) {
 		&place.EndTime,
 		&place.Description,
 		&place.TotalView,
+		&place.LatestView,
 	)
 
 	if err != nil {
@@ -89,6 +99,33 @@ func GetPlaceById(id string) (models.Place, error) {
 	}
 
 	return place, nil
+}
+
+func determinateNumberOfViewsLastMinute(placeId string) (error){
+
+	currentTimeByLocation := time.Now().Local()
+	currentTimemilliByLocation := currentTimeByLocation.UnixMilli()
+
+	if utils.ResetTimeInMilli > currentTimemilliByLocation {
+		updateViewsPerRequest(placeId, "latest_view")
+	} else {
+		// medio trucheli, podria ser mejor lanzar una gorutina en main que se ejecute cada x tiempo
+		// mi idea principal es tener las visitas por dia pero a fines practicos la hice cada 1 minuto.
+		updateLastViewsToZero(placeId)
+		utils.ResetTimeInMilli = utils.SetTheScheduleResetTime().UnixMilli()
+	}
+
+	return nil
+}
+
+func updateLastViewsToZero(placeId string) (error) {
+	sqlStatement := "UPDATE places SET latest_view = 0;"
+
+	_, err := Db.Exec(sqlStatement)
+	if err != nil {
+		return fmt.Errorf("Unable to execute the query: %s\n Error: %v", sqlStatement, err)
+	}
+	return nil
 }
 
 func GetAllPlaces(sort string, kind string) ([]models.Place, error) {
@@ -129,6 +166,7 @@ func GetAllPlaces(sort string, kind string) ([]models.Place, error) {
 			&place.EndTime,
 			&place.Description,
 			&place.TotalView,
+			&place.LatestView,
 		)
 		if err != nil {
 			return []models.Place{}, fmt.Errorf("Unable to scan the row: %s\n Error: %v", sqlStatement, err)
@@ -205,7 +243,8 @@ func UpdatePlaceByID(id string, updatedPlace models.Place) (models.Place, error)
 			&updatedRow.StartTime,
 			&updatedRow.EndTime,
 			&updatedRow.Description,
-			&updatedRow.TotalView)
+			&updatedRow.TotalView,
+			&updatedRow.LatestView)
 
     if err != nil {
         return models.Place{}, err
@@ -241,6 +280,7 @@ func GetAllPlacesByName(placeName string) ([]models.Place, error) {
 			&place.EndTime,
 			&place.Description,
 			&place.TotalView,
+			&place.LatestView,
 		)
 		if err != nil {
 			return []models.Place{}, fmt.Errorf("Unable to scan the row %v.\nError: %v", sqlStatement, err)

@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func DeterminateValidPlaceKind(kind string) (bool, error) {
 	// Esto debería estar guardado en la DB
@@ -21,4 +24,22 @@ func contains(slice []string, element string) bool {
 		}
 	}
 	return false
+}
+
+var ResetTimeInMilli int64 = SetTheScheduleResetTime().UnixMilli()
+
+func SetTheScheduleResetTime() *time.Time {
+	currentTimeByLocation := time.Now().Local()
+	refreshMinutes := 1
+
+	h := currentTimeByLocation.Hour()
+	m := currentTimeByLocation.Minute() + refreshMinutes
+	s := currentTimeByLocation.Second()
+
+	year, month, day := currentTimeByLocation.Date()
+
+	// Current time plus refreshMinutes
+	startTimeOfDay := time.Date(year, month, day, h, m, s, 0, time.Local)
+
+	return &startTimeOfDay
 }

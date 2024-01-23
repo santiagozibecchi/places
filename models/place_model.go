@@ -11,4 +11,5 @@ type Place struct {
 	EndTime     string `json:"end_time"`
 	Description string `json:"description"`
 	TotalView   string `json:"total_view"`
+	LatestView   string `json:"latest_view"`
 }

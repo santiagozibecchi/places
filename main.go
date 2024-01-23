@@ -8,7 +8,7 @@ import (
 
 	"github.com/places/controllers"
 	"github.com/places/services"
-	
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
@@ -40,6 +40,7 @@ func main() {
 	// r.HandleFunc("/api/v1/places/{groupBy:(kind}", controllers.HandleFunc)
 
 	// Users
+	router.HandleFunc("/api/v1/users", controllers.GetUsers).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/users", controllers.GetUsers).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/users", controllers.CreateUser).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/users/{userId}", controllers.DeleteUser).Methods(http.MethodDelete)

@@ -37,6 +37,10 @@ ADD COLUMN comment TEXT NOT NULL;
 ALTER TABLE places
 ADD COLUMN total_view INT DEFAULT 0;
 
+-- Cantidad de vistas del lugar por minuto
+ALTER TABLE places
+ADD COLUMN latest_views INT DEFAULT 0;
+
 -- SEED
 
 -- Pubs

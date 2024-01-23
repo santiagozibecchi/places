@@ -144,9 +144,3 @@ func SearchPlaces(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func SearchSortPlaces(w http.ResponseWriter, r *http.Request) {
-	sort := r.URL.Query().Get("sort")
-
-	// Ahora puedes usar el valor de sort en tu lógica de controlador.
-	fmt.Fprintf(w, "Sort: %s", sort)
-}
