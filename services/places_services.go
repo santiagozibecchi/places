@@ -91,15 +91,24 @@ func GetPlaceById(id string) (models.Place, error) {
 	return place, nil
 }
 
-func GetAllPlaces() ([]models.Place, error) {
+func GetAllPlaces(sort string, kind string) ([]models.Place, error) {
 	var places []models.Place
 
-	sqlStatement := `SELECT * FROM places`
+	var sqlStatement string
+	var args []interface{}
+
+	// Quizas es mejor que GetAllPlaces reciba otro tipo de parametros..... no me gusta mucho esto.
+	if kind != "" {
+		sqlStatement = fmt.Sprintf("SELECT * FROM places WHERE kind=$1 ORDER BY name %s", sort)
+		args = append(args, kind)
+	} else {
+		sqlStatement = fmt.Sprintf("SELECT * FROM places ORDER BY name %s", sort)
+	}
 	/*
 	Db.Query es más adecuado cuando solo necesitas ejecutar una consulta
 	sin necesidad de reutilizarla con diferentes parámetros.
 	*/
-	rows, err := Db.Query(sqlStatement)
+	rows, err := Db.Query(sqlStatement, args...)
 	if err != nil {
 		return []models.Place{}, fmt.Errorf("Unable to execute the query: %s\n Error: %v", sqlStatement, err)
 	}
@@ -109,8 +118,6 @@ func GetAllPlaces() ([]models.Place, error) {
 
 	var place models.Place
 	for rows.Next() {
-
-		// unmarshal the row object to movie
 		err = rows.Scan(
 			&place.PlaceID,
 			&place.Name,
@@ -127,9 +134,8 @@ func GetAllPlaces() ([]models.Place, error) {
 			return []models.Place{}, fmt.Errorf("Unable to scan the row: %s\n Error: %v", sqlStatement, err)
 		}
 
-		// append the movie in the movies slice
+		// append the place in the places slice
 		places = append(places, place)
-
 	}
 
 	return places, nil

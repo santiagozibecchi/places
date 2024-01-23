@@ -35,10 +35,9 @@ func main() {
 	router.HandleFunc("/api/v1/places/{id}", controllers.UpdatePlace).Methods(http.MethodPut)
 	// Search Places
 	router.HandleFunc("/api/v1/places/placeName/{placeName}", controllers.SearchPlaces).Methods(http.MethodGet)
+
 	// TODO: nice to implement
-	// r.HandleFunc("/api/v1/places/{placeName}/{sort:(?:asc|desc|default)}", controllers.HandleFunc)
-	// TODO: nice to implement
-	// r.HandleFunc("/api/v1/places/{kind}/{sort:(?:asc|desc|default)}", controllers.HandleFunc)
+	// r.HandleFunc("/api/v1/places/{groupBy:(kind}", controllers.HandleFunc)
 
 	// Users
 	router.HandleFunc("/api/v1/users", controllers.GetUsers).Methods(http.MethodGet)

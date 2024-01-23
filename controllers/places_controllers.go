@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/places/models"
 	"github.com/places/services"
+	"github.com/places/utils"
 )
 
 func CreatePlace(w http.ResponseWriter, r *http.Request) {
@@ -37,21 +38,35 @@ func CreatePlace(w http.ResponseWriter, r *http.Request) {
 func GetPlaces(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 
-	places, err := services.GetAllPlaces()
+	sortType := map[string]bool{
+		"asc": true,
+		"desc": true,
+	}
+
+	sort := r.URL.Query().Get("sort")
+	kind := r.URL.Query().Get("kind")
+
+	if _, err := utils.DeterminateValidPlaceKind(kind); err != nil {
+		kind = ""
+	}
+
+	if _, notValidShortType := sortType[sort]; !notValidShortType {
+		sort = "asc"
+	}
+
+	places, err := services.GetAllPlaces(sort, kind)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		w.Write([]byte("Error al traer todos los lugares"))
 		return
 	}
 
-	w.WriteHeader(http.StatusFound)
 	/*
 	se encarga de convertir el slice de películas (movies) a JSON
 	y escribirlo en el http.ResponseWriter para enviar la 
 	respuesta al cliente. 
 	*/
 	json.NewEncoder(w).Encode(places)
-
 }
 
 func GetSpecificPlace(w http.ResponseWriter, r *http.Request)  {
@@ -127,4 +142,11 @@ func SearchPlaces(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(places)
 
+}
+
+func SearchSortPlaces(w http.ResponseWriter, r *http.Request) {
+	sort := r.URL.Query().Get("sort")
+
+	// Ahora puedes usar el valor de sort en tu lógica de controlador.
+	fmt.Fprintf(w, "Sort: %s", sort)
 }
