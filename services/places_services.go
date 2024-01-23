@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/places/types"
 
 	"github.com/places/models"
 	"github.com/places/utils"
@@ -128,23 +129,32 @@ func updateLastViewsToZero(placeId string) (error) {
 	return nil
 }
 
-func GetAllPlaces(sort string, kind string) ([]models.Place, error) {
+func GetAllPlaces(queryParams types.PlaceQueryParams) ([]models.Place, error) {
 	var places []models.Place
 
 	var sqlStatement string
 	var args []interface{}
 
-	// Quizas es mejor que GetAllPlaces reciba otro tipo de parametros..... no me gusta mucho esto.
-	if kind != "" {
-		sqlStatement = fmt.Sprintf("SELECT * FROM places WHERE kind=$1 ORDER BY name %s", sort)
-		args = append(args, kind)
+	// Sigo creyendo que se puede mejorar pero por ahora es lo que pude hacer.. 
+	// Construir una query que se adapte a ciertos criterios de busquedas no esta tan sencillo
+	if queryParams.Kind != "" && queryParams.Country != "" {
+		sqlStatement = fmt.Sprintf("SELECT * FROM places WHERE country=$1 AND kind=$2 ORDER BY name %s", queryParams.Sort)
+		args = append(args, queryParams.Country)
+		args = append(args, queryParams.Kind)
+	} else if queryParams.Country != "" {
+		sqlStatement = fmt.Sprintf("SELECT * FROM places WHERE country=$1 ORDER BY name %s", queryParams.Sort)
+		args = append(args, queryParams.Country)
+	} else if queryParams.Kind != ""{
+		sqlStatement = fmt.Sprintf("SELECT * FROM places WHERE kind=$1 ORDER BY name %s", queryParams.Sort)
+		args = append(args, queryParams.Kind)
 	} else {
-		sqlStatement = fmt.Sprintf("SELECT * FROM places ORDER BY name %s", sort)
+		sqlStatement = fmt.Sprintf("SELECT * FROM places ORDER BY name %s", queryParams.Sort)
 	}
 	/*
 	Db.Query es más adecuado cuando solo necesitas ejecutar una consulta
 	sin necesidad de reutilizarla con diferentes parámetros.
 	*/
+
 	rows, err := Db.Query(sqlStatement, args...)
 	if err != nil {
 		return []models.Place{}, fmt.Errorf("Unable to execute the query: %s\n Error: %v", sqlStatement, err)

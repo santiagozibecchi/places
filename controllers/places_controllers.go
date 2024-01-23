@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/places/types"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -38,23 +39,29 @@ func CreatePlace(w http.ResponseWriter, r *http.Request) {
 func GetPlaces(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 
-	sortType := map[string]bool{
-		"asc": true,
-		"desc": true,
-	}
-
 	sort := r.URL.Query().Get("sort")
 	kind := r.URL.Query().Get("kind")
+	country := r.URL.Query().Get("country")
 
-	if _, err := utils.DeterminateValidPlaceKind(kind); err != nil {
-		kind = ""
+	defaultQueryParamsType := types.PlaceQueryParams{
+		Sort:   sort,
+		Kind:   kind,
+		Country: country,
 	}
 
-	if _, notValidShortType := sortType[sort]; !notValidShortType {
-		sort = "asc"
+	if validKind, _ := utils.DeterminateValidPlaceKind(kind); !validKind {
+		defaultQueryParamsType.Kind = ""
+	}
+	
+	if validShortType, _ := utils.DetermineValidSortOrder(sort); !validShortType {
+		defaultQueryParamsType.Sort = "asc"
 	}
 
-	places, err := services.GetAllPlaces(sort, kind)
+	if validCountry, _ := utils.DeterminateValidCountry(country); !validCountry {
+		defaultQueryParamsType.Country = ""
+	}
+
+	places, err := services.GetAllPlaces(defaultQueryParamsType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		w.Write([]byte("Error al traer todos los lugares"))
