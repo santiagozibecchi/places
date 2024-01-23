@@ -3,7 +3,7 @@
 ## Endpoints habilitados
 
 ### /api/v1/users
-Obtener todos los usuarios:               GET  /api/v1/users
+Obtener todos los usuarios:               GET  /api/v1/users => Query Params (sort & kind)
 Actualizar usuario:                       PUT  /api/v1/users/{id}
 Eliminar usuario:                         DELETE /api/v1/users/{id}
 Crear usuario: *                          POST  /api/v1/users
