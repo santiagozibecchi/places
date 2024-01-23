@@ -6,6 +6,7 @@ import (
 )
 
 func DeterminateValidPlaceKind(kind string) (bool, error) {
+	// TODO: crear tabla
 	// Esto debería estar guardado en la DB
 	validKind := []string{"pubs", "restaurants", "parties"}
 	
@@ -17,6 +18,7 @@ func DeterminateValidPlaceKind(kind string) (bool, error) {
 }
 
 func DeterminateValidCountry(kind string) (bool, error) {
+	// TODO: crear tabla
 	// Esto debería estar guardado en la DB
 	validKind := []string{"Argentina", "Peru", "Japan", "USA", "Germany", "Cuba", "Mexico", "South Korea", "Brazil"}
 	
