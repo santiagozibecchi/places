@@ -146,6 +146,9 @@ func UpdateWeatherCity(placeId string) (error) {
 		return err
 	}
 
+	// TODO: Una vez obtengo la geolocalización puedo almacenar estas en otra
+	// TODO: TABLA para no estar realizando a cada rato consultas a este endpoint
+	// TODO: que me puede cobrar!
 	geocodingPlace := getlatitudeAndLongitudeByLocation(response, country)
 
 	weather, err := getWeatherLocation(geocodingPlace.Lng, geocodingPlace.Lat)
