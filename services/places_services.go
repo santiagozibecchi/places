@@ -74,6 +74,11 @@ func GetPlaceById(id string) (models.Place, error) {
 		return models.Place{}, errMessage
 	}
 
+	errUpdateWeather := UpdateWeatherCity(id)
+	if errUpdateWeather != nil {
+		return models.Place{}, errUpdateWeather
+	} 
+
 	var place models.Place
 
 	sqlStatement := `SELECT * FROM places WHERE place_id=$1;`
