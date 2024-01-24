@@ -3,7 +3,7 @@
 ## Endpoints habilitados
 
 ### /api/v1/users
-Obtener todos los usuarios:               GET  /api/v1/users => Query Params (sort & kind)
+Obtener todos los usuarios:               GET  /api/v1/users 
 Actualizar usuario:                       PUT  /api/v1/users/{id}
 Eliminar usuario:                         DELETE /api/v1/users/{id}
 Crear usuario: *                          POST  /api/v1/users
@@ -16,8 +16,9 @@ Crear usuario: *                          POST  /api/v1/users
 }
 
 ### Places
-Obtener todos los lugares:                GET /api/v1/places
-Obtener un lugar:                         GET /api/v1/places/{placeId}
+Obtener todos los lugares:                GET /api/v1/places => Query Params (sort & kind & country)
+Obtener un lugar por id:                  GET /api/v1/places/{placeId}
+Obtener un lugares por nombre:            GET /api/v1/places/placeName/{placeName}
 Eliminar un lugar:                        DELETE /api/v1/places/{placeId}
 Actualizar un lugar:                      PUT /api/v1/places/{placeId}
 Crear un lugar: *                         POST /api/v1/places
