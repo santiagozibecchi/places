@@ -156,8 +156,7 @@ func UpdateWeatherCity(placeId string) (error) {
 		return err
 	}
 
-	fmt.Println(weather)
-	errAsignWeather := setWeatherToLocation(weather)
+	errAsignWeather := setWeatherToLocation(weather, placeId)
 	if errAsignWeather != nil {
 		return err
 	}
@@ -165,20 +164,35 @@ func UpdateWeatherCity(placeId string) (error) {
 	return nil
 }
 
-func setWeatherToLocation(weather types.WeatherResponse) (error) {
-
-	type weatherLocation struct {
-		description string
-		min float64
-		max float64
-		temp float64
+func setWeatherToLocation(weather types.WeatherResponse, placeId string) error {
+	type WeatherLocation struct {
+		Description     string
+		TemperatureMin  float64
+		TemperatureMax  float64
+		Temperature     float64
 	}
-	/*
-		desc: weather[0].description,
-		min: main.temp_min,
-		max: main.temp_max,
-		temp: main.temp
-	*/
+
+	weatherLocation := WeatherLocation{
+		Description:    weather.Weather[0].Description,
+		TemperatureMin: weather.Main.TempMin,
+		TemperatureMax: weather.Main.TempMax,
+		Temperature:    weather.Main.Temp,
+	}
+
+	sqlStatement := `
+	INSERT INTO weathers (place_id, temperature_min, temperature_max, temperature, description)
+	VALUES ($1, $2, $3, $4, $5)`
+
+	stmt, err := Db.Prepare(sqlStatement)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(placeId, weatherLocation.TemperatureMin, weatherLocation.TemperatureMax, weatherLocation.Temperature, weatherLocation.Description)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

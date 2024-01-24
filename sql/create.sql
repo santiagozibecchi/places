@@ -29,6 +29,16 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
+CREATE TABLE IF NOT EXISTS weathers (
+  weather_id SERIAL PRIMARY KEY,
+  place_id INT NOT NULL,
+  FOREIGN KEY (place_id) REFERENCES places (place_id),
+  temperature_min DOUBLE PRECISION,
+  temperature_max DOUBLE PRECISION,
+  temperature DOUBLE PRECISION,
+  description TEXT
+);
+
 -- Me olvide de colocar el campo commment! 
 ALTER TABLE comments
 ADD COLUMN comment TEXT NOT NULL;
