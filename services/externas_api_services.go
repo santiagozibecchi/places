@@ -39,6 +39,8 @@ func getMapboxDetailsByLocation(city string) ([]types.Feature, error) {
 	baseURL := "https://api.mapbox.com/geocoding/v5/mapbox.places/"
 	paramsMapbox := map[string]string{
 		"access_token": os.Getenv("MAPBOX_KEY"),
+		"limit": "5",
+		"language": "es",
 	}
 
 	// Peticion HTTP a Mapbox
@@ -71,6 +73,45 @@ func getMapboxDetailsByLocation(city string) ([]types.Feature, error) {
 	}
 
 	return response.Features, nil
+}
+
+func getWeatherLocation(lng float64, lat float64) (types.WeatherResponse, error) {
+
+	baseURL := "https://api.openweathermap.org/data/2.5/weather"
+	paramsOpenWeatherMap := map[string]interface{}{
+		"appid": os.Getenv("OPENWEATHER_KEY"),
+		"units": "metric",
+		"lang":  "es",
+		"lat":   lat,
+		"lon":   lng,
+	}
+
+	instance := http.Client{}
+	req, err := http.NewRequest("GET", baseURL, nil)
+	if err != nil {
+		return types.WeatherResponse{}, err
+	}
+
+	q := req.URL.Query()
+	for key, value := range paramsOpenWeatherMap {
+		q.Add(key, fmt.Sprint(value))
+	}
+
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := instance.Do(req)
+	if err != nil {
+		return types.WeatherResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	var response types.WeatherResponse
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return types.WeatherResponse{}, err
+	}
+
+	return response, nil
 }
 
 func getCityAndCountryByLocation(id string) (string, string, error)  {
@@ -107,8 +148,34 @@ func UpdateWeatherCity(placeId string) (error) {
 
 	geocodingPlace := getlatitudeAndLongitudeByLocation(response, country)
 
-	fmt.Println(geocodingPlace)
+	weather, err := getWeatherLocation(geocodingPlace.Lng, geocodingPlace.Lat)
+	if err != nil {
+		return err
+	}
 
+	fmt.Println(weather)
+	errAsignWeather := setWeatherToLocation(weather)
+	if errAsignWeather != nil {
+		return err
+	}
+	
+	return nil
+}
+
+func setWeatherToLocation(weather types.WeatherResponse) (error) {
+
+	type weatherLocation struct {
+		description string
+		min float64
+		max float64
+		temp float64
+	}
+	/*
+		desc: weather[0].description,
+		min: main.temp_min,
+		max: main.temp_max,
+		temp: main.temp
+	*/
 	return nil
 }
 
