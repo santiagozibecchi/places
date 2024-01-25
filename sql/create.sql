@@ -51,6 +51,16 @@ ADD COLUMN total_view INT DEFAULT 0;
 ALTER TABLE places
 ADD COLUMN latest_views INT DEFAULT 0;
 
+-- TODAVIA SIN IMPLEMENTAR
+
+CREATE TABLE IF NOT EXISTS locations (
+  location_id SERIAL PRIMARY KEY,
+  place_id INT NOT NULL,
+  FOREIGN KEY (place_id) REFERENCES places (place_id),
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+);
+
 -- SEED
 
 -- Pubs
@@ -103,3 +113,5 @@ VALUES
   ('Fernando', 'Cruz', 'fernando.cruz@example.com', 'fernandocruz', 'male'),
   ('Marta', 'Ortega', 'marta.ortega@example.com', 'martaortega', 'female'),
   ('Juan', 'Reyes', 'juan.reyes@example.com', 'juanreyes', 'male');
+
+
