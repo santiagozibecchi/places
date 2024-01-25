@@ -57,8 +57,10 @@ CREATE TABLE IF NOT EXISTS locations (
   location_id SERIAL PRIMARY KEY,
   place_id INT NOT NULL,
   FOREIGN KEY (place_id) REFERENCES places (place_id),
+  country VARCHAR(150) NOT NULL,
+  address VARCHAR(150) NOT NULL,
   latitude DOUBLE PRECISION,
-  longitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION
 );
 
 -- SEED
