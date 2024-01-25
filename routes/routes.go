@@ -44,4 +44,5 @@ func InitRoutes(router *mux.Router) {
 	
 	// Comments
 	Post("/api/v1/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUser)
+	// Get("/api/v1/place/user/{userId}", controllers.GetCommentByUserId)
 }
