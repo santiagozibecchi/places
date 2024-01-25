@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/places/controllers"
+	"github.com/places/routes"
 	"github.com/places/services"
 
 	"github.com/gorilla/mux"
@@ -22,35 +22,9 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+	routes.InitRoutes(router)
 
-	// Routes
-	router.HandleFunc("/", handleF).Methods("GET")
-
-	// Places
-	// TODO: id => placeId
-	router.HandleFunc("/api/v1/places", controllers.GetPlaces).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/places/{id}", controllers.GetSpecificPlace).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/places", controllers.CreatePlace).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/places/{id}", controllers.DeletePlace).Methods(http.MethodDelete)
-	router.HandleFunc("/api/v1/places/{id}", controllers.UpdatePlace).Methods(http.MethodPut)
-	// Search Places
-	router.HandleFunc("/api/v1/places/placeName/{placeName}", controllers.SearchPlaces).Methods(http.MethodGet)
-
-	// TODO: nice to implement
-	// r.HandleFunc("/api/v1/places/{groupBy:(kind}", controllers.HandleFunc)
-
-	// Users
-	router.HandleFunc("/api/v1/users", controllers.GetUsers).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/users", controllers.GetUsers).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/users", controllers.CreateUser).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/users/{userId}", controllers.DeleteUser).Methods(http.MethodDelete)
-	router.HandleFunc("/api/v1/users/{userId}", controllers.UpdateUser).Methods(http.MethodPut)
-	
-	// Comments
-	router.HandleFunc("/api/v1/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUser).Methods(http.MethodPost)
-	
 	// Cors
-
 	corsOptions := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5432"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
@@ -64,11 +38,6 @@ func main() {
 	}
 
 }
-
-func handleF(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hola"))
-}
-
 
 func StartServer(port string, router http.Handler) error {
 	server := &http.Server{
