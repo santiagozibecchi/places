@@ -20,7 +20,7 @@ func StringToInt(value string) (int, error) {
 }
 
 
-func CreateCommentInPlaceByUser(w http.ResponseWriter, r *http.Request)  {
+func CreateCommentInPlaceByUserId(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	
@@ -53,4 +53,57 @@ func CreateCommentInPlaceByUser(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	json.NewEncoder(w).Encode(comment)
+}
+
+func GetCommentsByUserId(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	
+    userId, err := StringToInt(vars["userId"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+	comment, err := services.GetCommentsByUserId(userId)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		resp := fmt.Sprintf("Error al buscar todos los commentario con userId: %v", userId)
+		w.Write([]byte(resp))
+		return
+	}
+
+	json.NewEncoder(w).Encode(comment)
+
+
+}
+
+func GetCommentsByUserIdAndPlaceId(w http.ResponseWriter, r *http.Request)  {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	
+    placeId, err := StringToInt(vars["placeId"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+	userId, err := StringToInt(vars["userId"])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+	comment, err := services.GetCommentsByUserIdAndPlaceId(placeId, userId)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		resp := fmt.Sprintf("Error al buscar el commentario con el placeId: %v y userId: %v", placeId, userId)
+		w.Write([]byte(resp))
+		return
+	}
+
+	json.NewEncoder(w).Encode(comment)
+
 }

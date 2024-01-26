@@ -32,6 +32,60 @@ func CreateComment(placeId int, userId int, newComment models.Comment) (models.C
 	return comment, nil
 }
 
+func GetCommentsByUserId(userId int) ([]models.Comment, error) {
+	
+	sqlStatement := "SELECT * FROM comments WHERE user_id=$1;"
+	
+	rows, err := Db.Query(sqlStatement, userId)
+	if err != nil {
+		return []models.Comment{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
+	}
+	
+	defer rows.Close()
+	
+	var commets []models.Comment
+	var comment models.Comment
+	
+	for rows.Next() {
+		err = rows.Scan(&comment.CommentID, &comment.PlaceID, &comment.UserID, &comment.Comment)
+
+		if err != nil {
+			return []models.Comment{}, fmt.Errorf("Unable to scan the row => %v.\nError: %v", sqlStatement, err)
+		}
+
+		commets = append(commets, comment)
+	}
+
+	return commets, nil 
+}
+
+func GetCommentsByUserIdAndPlaceId(placeId, userId int) ([]models.Comment, error) {
+	
+	sqlStatement := "SELECT * FROM comments WHERE user_id=$1 AND place_id=$2;"
+	
+	rows, err := Db.Query(sqlStatement, userId, placeId)
+	if err != nil {
+		return []models.Comment{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
+	}
+	
+	defer rows.Close()
+	
+	var commets []models.Comment
+	var comment models.Comment
+	
+	for rows.Next() {
+		err = rows.Scan(&comment.CommentID, &comment.PlaceID, &comment.UserID, &comment.Comment)
+
+		if err != nil {
+			return []models.Comment{}, fmt.Errorf("Unable to scan the row => %v.\nError: %v", sqlStatement, err)
+		}
+
+		commets = append(commets, comment)
+	}
+
+	return commets, nil 
+}
+
 // placeExists verifica si un lugar existe en la base de datos
 func placeExists(placeId int) bool {
 	return true 

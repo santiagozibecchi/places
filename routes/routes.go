@@ -43,6 +43,7 @@ func InitRoutes(router *mux.Router) {
 	Put("/api/v1/users/{userId}", controllers.UpdateUser)
 	
 	// Comments
-	Post("/api/v1/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUser)
-	// Get("/api/v1/place/user/{userId}", controllers.GetCommentByUserId)
+	Post("/api/v1/comments/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUserId)
+	Get("/api/v1/comments/user/{userId}", controllers.GetCommentsByUserId)
+	Get("/api/v1/comments/place/{placeId}/user/{userId}", controllers.GetCommentsByUserIdAndPlaceId)
 }
