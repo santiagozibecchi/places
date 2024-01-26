@@ -59,25 +59,37 @@ func GetCommentsByUserId(userId int) ([]models.Comment, error) {
 	return commets, nil 
 }
 
-func GetCommentsByUserIdAndPlaceId(placeId, userId int) ([]models.Comment, error) {
+func GetExpandCommentsByUserIdAndPlaceId(placeId, userId int) ([]models.ExpandComment, error) {
 	
-	sqlStatement := "SELECT * FROM comments WHERE user_id=$1 AND place_id=$2;"
+	sqlStatement := `
+	SELECT 
+		c.comment_id, c.place_id, c.user_id, c.comment,
+		s.name, s.lastname, s.username,
+		p.name AS place_name, p.location
+	FROM comments c
+	JOIN users s ON c.user_id = s.user_id
+	JOIN places p ON c.place_id = p.place_id
+	WHERE c.user_id=$1 AND c.place_id=$2;`
 	
 	rows, err := Db.Query(sqlStatement, userId, placeId)
 	if err != nil {
-		return []models.Comment{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
+		return []models.ExpandComment{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
 	}
 	
 	defer rows.Close()
 	
-	var commets []models.Comment
-	var comment models.Comment
+	var commets []models.ExpandComment
+	var comment models.ExpandComment
 	
 	for rows.Next() {
-		err = rows.Scan(&comment.CommentID, &comment.PlaceID, &comment.UserID, &comment.Comment)
+		err = rows.Scan(
+			&comment.CommentID, &comment.PlaceID, &comment.UserID, &comment.Comment,
+			&comment.UserName, &comment.UserLastName, &comment.Username,
+			&comment.Name, &comment.Location,
+		)
 
 		if err != nil {
-			return []models.Comment{}, fmt.Errorf("Unable to scan the row => %v.\nError: %v", sqlStatement, err)
+			return []models.ExpandComment{}, fmt.Errorf("Unable to scan the row => %v.\nError: %v", sqlStatement, err)
 		}
 
 		commets = append(commets, comment)
