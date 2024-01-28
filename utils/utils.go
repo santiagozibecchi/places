@@ -54,6 +54,7 @@ func contains(slice []string, element string) bool {
 
 var ResetTimeInMilli int64 = SetTheScheduleResetTime().UnixMilli()
 
+// Obtengo el horario actual y le sumo x|(h,m,s)
 func SetTheScheduleResetTime() *time.Time {
 	currentTimeByLocation := time.Now().Local()
 	refreshMinutes := 1

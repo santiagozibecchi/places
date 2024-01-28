@@ -46,4 +46,9 @@ func InitRoutes(router *mux.Router) {
 	Post("/api/v1/comments/place/{placeId}/user/{userId}", controllers.CreateCommentInPlaceByUserId)
 	Get("/api/v1/comments/user/{userId}", controllers.GetCommentsByUserId)
 	Get("/api/v1/comments/place/{placeId}/user/{userId}", controllers.GetCommentsByUserIdAndPlaceId)
+
+	// weathers
+	Get("/api/v1/weather/place/{placeName}", controllers.GetWeatherByPlaceName)
+	Get("/api/v1/weather/location/{locationId}", controllers.GetWeatherByLocationId)
+
 }

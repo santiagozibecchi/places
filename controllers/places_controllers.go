@@ -15,16 +15,15 @@ import (
 func CreatePlace(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var newPlace models.Place
+	var newPlace models.RequestPlaceLocation
 
 	err := json.NewDecoder(r.Body).Decode(&newPlace)
-	fmt.Println(newPlace)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	newPlaceName, err := services.CreatePlace(newPlace)
+	newPlaceName, placeId, err := services.CreatePlace(newPlace)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		w.Write([]byte("Error al crear el Lugar"))
@@ -32,7 +31,7 @@ func CreatePlace(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	response := fmt.Sprintf("Lugar '%s' creado con exito!", newPlaceName)
+	response := fmt.Sprintf("Lugar '%s' creado con exito! con el ID: %v", newPlaceName, placeId)
 	w.Write([]byte(response))
 }
 

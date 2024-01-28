@@ -19,7 +19,7 @@ func CreateComment(placeId int, userId int, newComment models.Comment) (models.C
 	var comment models.Comment
 
 	sqlStatement := `
-	INSERT INTO comments (place_id, user_id, comment)
+	INSERT INTO comment (place_id, user_id, comment)
 	VALUES ($1, $2, $3)
 	RETURNING comment_id, place_id, user_id, comment;`
 
@@ -34,7 +34,7 @@ func CreateComment(placeId int, userId int, newComment models.Comment) (models.C
 
 func GetCommentsByUserId(userId int) ([]models.Comment, error) {
 	
-	sqlStatement := "SELECT * FROM comments WHERE user_id=$1;"
+	sqlStatement := "SELECT * FROM comment WHERE user_id=$1;"
 	
 	rows, err := Db.Query(sqlStatement, userId)
 	if err != nil {
@@ -64,11 +64,11 @@ func GetExpandCommentsByUserIdAndPlaceId(placeId, userId int) ([]models.ExpandCo
 	sqlStatement := `
 	SELECT 
 		c.comment_id, c.place_id, c.user_id, c.comment,
-		s.name, s.lastname, s.username,
-		p.name AS place_name, p.location
-	FROM comments c
-	JOIN users s ON c.user_id = s.user_id
-	JOIN places p ON c.place_id = p.place_id
+		s.user_name, s.user_lastname, s.username,
+		p.place_name
+	FROM comment c
+	JOIN user_account s ON c.user_id = s.user_id
+	JOIN place p ON c.place_id = p.place_id
 	WHERE c.user_id=$1 AND c.place_id=$2;`
 	
 	rows, err := Db.Query(sqlStatement, userId, placeId)
@@ -85,7 +85,7 @@ func GetExpandCommentsByUserIdAndPlaceId(placeId, userId int) ([]models.ExpandCo
 		err = rows.Scan(
 			&comment.CommentID, &comment.PlaceID, &comment.UserID, &comment.Comment,
 			&comment.UserName, &comment.UserLastName, &comment.Username,
-			&comment.Name, &comment.Location,
+			&comment.Name,
 		)
 
 		if err != nil {

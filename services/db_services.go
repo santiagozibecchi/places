@@ -57,7 +57,7 @@ func EstablishDBConnection() error {
 	}
 
 	Db = dbConn
-	fmt.Println("Conectado! ", Db)
+	fmt.Println("Conected to Database!")
 	
 	if err = Db.Ping(); err != nil {
 		Db.Close()

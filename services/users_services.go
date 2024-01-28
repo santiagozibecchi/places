@@ -12,38 +12,39 @@ import (
 )
 
 // Devuelve el nombre de la pelicula
-func CreateUser(place models.User) (string, error) {
+func CreateUser(place models.User) (string, string, error) {
 
 	if  place.Name == ""      ||
 		place.LastName == ""      ||
 		place.Email == ""   ||
 		place.Username == ""  ||
 		place.Gender == "" {
-			return "", errors.New("Todos los campos son obligatorios.")
+			return "", "", errors.New("Todos los campos son obligatorios.")
 	}
 
 	stmt, err := Db.Prepare(`
-	INSERT INTO users (name, lastname, email, username, gender) 
+	INSERT INTO user_account (user_name, user_lastname, email, username, gender) 
 	VALUES ($1, $2, $3, $4, $5) 
-	RETURNING name`)
+	RETURNING user_name, user_id`)
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var newUserName string
-	err = stmt.QueryRow(place.Name, place.LastName, place.Email, place.Username ,place.Gender).Scan(&newUserName)
+	var userId string
+	err = stmt.QueryRow(place.Name, place.LastName, place.Email, place.Username ,place.Gender).Scan(&newUserName, &userId)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return newUserName, nil 
+	return newUserName, userId, nil 
 }
 
 func GetAllUsers() ([]models.User, error) {
 	var users []models.User
 
-	sqlStatement := `SELECT * FROM users`
+	sqlStatement := `SELECT * FROM user_account`
 
 	rows, err := Db.Query(sqlStatement)
 	if err != nil {
@@ -80,7 +81,7 @@ func GetAllUsers() ([]models.User, error) {
 
 func DeleteUserByID(id string) (string, error) {
 	var deletedUserName string
-	sqlStatement := `DELETE FROM users WHERE user_id=$1 RETURNING name;`
+	sqlStatement := `DELETE FROM user_account WHERE user_id=$1 RETURNING user_name;`
 
 	err := Db.QueryRow(sqlStatement, id).Scan(&deletedUserName)
 
@@ -110,7 +111,7 @@ func UpdateUserByID(id string, updatedPlace models.User) (models.User, error) {
     t := reflect.TypeOf(updatedPlace)
     v := reflect.ValueOf(updatedPlace)
 
-    sqlStatement := "UPDATE users SET "
+    sqlStatement := "UPDATE user_account SET "
 
     // Almacenar los valores de los campos que se actualizarán
     var sqlValues []interface{}

@@ -75,8 +75,6 @@ func GetCommentsByUserId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(comment)
-
-
 }
 
 func GetCommentsByUserIdAndPlaceId(w http.ResponseWriter, r *http.Request)  {

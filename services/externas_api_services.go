@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/places/models"
 	"github.com/places/types"
 )
 
 // Para el clima de la cuidad
 func getAllCountries() ([]string, error) {
 	
-	sqlStatement := `SELECT country FROM places GROUP BY country;`
+	sqlStatement := `SELECT country FROM place GROUP BY country;`
 
 	rows, err := Db.Query(sqlStatement)
 
@@ -114,7 +115,7 @@ func getWeatherLocation(lng float64, lat float64) (types.WeatherResponse, error)
 	return response, nil
 }
 
-func getCityAndCountryByLocation(id string) (string, string, error)  {
+func getCityAndCountryByLocation(placeId string) (string, string, error)  {
 
 	type cityAndCountry struct {
 		city string
@@ -122,16 +123,28 @@ func getCityAndCountryByLocation(id string) (string, string, error)  {
 	}
 
 	var location cityAndCountry
-	sqlStatement := "SELECT location, country FROM places WHERE place_id=$1;"
-	err := Db.QueryRow(sqlStatement, id).Scan(&location.city, &location.country)
+	sqlStatement := "SELECT l.location, l.country FROM place p INNER JOIN location l ON p.location_id = l.location_id WHERE place_id=$1;"
+	err := Db.QueryRow(sqlStatement, placeId).Scan(&location.city, &location.country)
 
 	if err == sql.ErrNoRows {
-		return "", "", fmt.Errorf("No se encontró ningún lugar con el ID %s", id)
+		return "", "", fmt.Errorf("No se encontró ningún lugar con el ID %s", placeId)
 	} else if err != nil {
 		return "", "", err
 	}
 
 	return location.city, location.country, nil
+}
+
+func getLocationId(placeId string) (string, error) {
+	var locationId string
+	sqlStatement := "SELECT l.location_id FROM place p INNER JOIN location l ON p.location_id = l.location_id WHERE place_id=$1;"
+
+	err := Db.QueryRow(sqlStatement, placeId).Scan(&locationId)
+	if err != nil {
+		return "", err
+	}
+
+	return locationId, nil
 }
 
 func UpdateWeatherCity(placeId string) (error) {
@@ -140,23 +153,46 @@ func UpdateWeatherCity(placeId string) (error) {
 	if err != nil {
 		return err
 	}
+
+	// ESTO DEBE SER REFACTORIZADO!
+	locationId, err := getLocationId(placeId)
+	if err != nil {
+		return err
+	}
+
+	lng, lat, isLngAndLatCityInDB, err := checkLngAndLatByPlaceId(placeId)
+	if err != nil {
+		return err
+	}
+
+	if !isLngAndLatCityInDB {
+		fmt.Println("SE BUSCO LNG Y LAT MEDIANTE API EXTERNA")
+		geocodingPlace, err := getGeocodingDetails(city, country)
+		if err != nil {
+			return err
+		}
+
+		weather, err := getWeatherLocation(geocodingPlace.Lng, geocodingPlace.Lat)
+		if err != nil {
+			return err
+		}
+
+		err = saveLngAndLatLocationToDB(geocodingPlace.Lng, geocodingPlace.Lat, city)
+		if err != nil {
+			return err
+		}
+
+		return setWeather(weather, locationId)
+	}
 	
-	response, err  :=  getMapboxDetailsByLocation(city)
+	fmt.Println("SE BUSCO LNG Y LAT MEDIANTE BASE DE DATOS!!!")
+
+	weather, err := getWeatherLocation(lng, lat)
 	if err != nil {
 		return err
 	}
 
-	// TODO: Una vez obtengo la geolocalización puedo almacenar estas en otra
-	// TODO: TABLA para no estar realizando a cada rato consultas a este endpoint
-	// TODO: que me puede cobrar!
-	geocodingPlace := getlatitudeAndLongitudeByLocation(response, country)
-
-	weather, err := getWeatherLocation(geocodingPlace.Lng, geocodingPlace.Lat)
-	if err != nil {
-		return err
-	}
-
-	errAsignWeather := setWeatherToLocation(weather, placeId)
+	errAsignWeather := setWeather(weather, locationId)
 	if errAsignWeather != nil {
 		return err
 	}
@@ -164,7 +200,103 @@ func UpdateWeatherCity(placeId string) (error) {
 	return nil
 }
 
-func setWeatherToLocation(weather types.WeatherResponse, placeId string) error {
+func saveLngAndLatLocationToDB(lng, lat float64, city string) (error) {
+	
+	sqlStatement := `
+	UPDATE location
+	SET latitude = $1, longitude = $2
+	WHERE location = $3;`
+
+	stmt, err := Db.Prepare(sqlStatement)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(lng, lat, city)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func checkLngAndLatByPlaceId(placeId string) (float64, float64, bool, error) {
+
+	areNullFields, err := areLatLngNullByPlaceId(placeId)
+	if err != nil {
+		return 0, 0, false, err
+	}
+	if areNullFields {
+		return 0, 0, false, nil
+	}
+
+	lng, lat, err := getLngAndLatFromDB(placeId)
+	if err != nil {
+		return 0, 0, false, err
+	}
+
+	return lng, lat, true, nil
+}
+
+func getLngAndLatFromDB(placeId string) (float64, float64, error) {
+
+	type LngAndLat struct {
+		Lng float64
+		Lat float64
+	}
+
+	var geolocation LngAndLat
+	
+	sqlStatement := "SELECT l.longitude, l.latitude FROM place p INNER JOIN location l ON p.location_id = l.location_id WHERE place_id=$1;"
+
+	err := Db.QueryRow(sqlStatement, placeId).Scan(&geolocation.Lng, &geolocation.Lat)
+
+	if err == sql.ErrNoRows {
+		return 0, 0, fmt.Errorf("Error al buscar datos de locacion del lugar por placeId: %s", placeId)
+	} else if err != nil {
+		return 0, 0, err
+	}
+
+	return geolocation.Lng, geolocation.Lat, nil
+}
+
+func areLatLngNullByPlaceId(placeId string) (bool, error) {
+    var isLatLngNotNull bool
+
+    // Verificar si latitude y longitude no son nulos en base a place_id
+    query := `
+        SELECT
+            CASE WHEN l.latitude IS NULL OR l.longitude IS NULL THEN true ELSE false END
+        FROM
+            place p
+        JOIN
+            location l ON p.location_id = l.location_id
+        WHERE
+            p.place_id = $1
+    `
+
+    // Realizar la consulta y escanear el resultado
+    err := Db.QueryRow(query, placeId).Scan(&isLatLngNotNull)
+    if err != nil {
+        return false, err
+    }
+
+    return isLatLngNotNull, nil
+}
+
+
+func getGeocodingDetails(city, country string) (models.GeocodingPlaceByLocation, error) {
+	response, err := getMapboxDetailsByLocation(city)
+	if err != nil {
+		return models.GeocodingPlaceByLocation{}, err
+	}
+
+	geocodingPlace := getlatitudeAndLongitudeByLocation(response, country)
+	return models.GeocodingPlaceByLocation{Lng: geocodingPlace.Lng, Lat: geocodingPlace.Lat}, nil
+}
+
+func setWeather(weather types.WeatherResponse, placeId string) error {
 	type WeatherLocation struct {
 		Description     string
 		TemperatureMin  float64
@@ -179,16 +311,18 @@ func setWeatherToLocation(weather types.WeatherResponse, placeId string) error {
 		Temperature:    weather.Main.Temp,
 	}
 
+	// Actualizar tabla del clima por cada petición
 	sqlStatement := `
-	INSERT INTO weathers (place_id, temperature_min, temperature_max, temperature, description)
-	VALUES ($1, $2, $3, $4, $5)`
+	UPDATE weather 
+	SET temperature_min = $1, temperature_max = $2, temperature = $3, description = $4
+	WHERE location_id = $5`
 
 	stmt, err := Db.Prepare(sqlStatement)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(placeId, weatherLocation.TemperatureMin, weatherLocation.TemperatureMax, weatherLocation.Temperature, weatherLocation.Description)
+	_, err = stmt.Exec(weatherLocation.TemperatureMin, weatherLocation.TemperatureMax, weatherLocation.Temperature, weatherLocation.Description, placeId)
 	if err != nil {
 		return err
 	}

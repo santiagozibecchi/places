@@ -22,7 +22,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUserName, err := services.CreateUser(newUser)
+	newUserName, userId, err := services.CreateUser(newUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		w.Write([]byte("Error al crear el nuevo usuario"))
@@ -30,7 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	response := fmt.Sprintf("Usuario '%s' creado con exito!", newUserName)
+	response := fmt.Sprintf("Usuario '%s' creado con exito! Con el ID: %v", newUserName, userId)
 	w.Write([]byte(response))
 }
 

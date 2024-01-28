@@ -20,7 +20,8 @@ sudo service postgresql start
 sudo service postgresql stop
 
 Coneccion directa a psql
-psql -h localhost -p 5432 -U role_prueba -d prueba2;
+V1: psql -h localhost -p 5432 -U role_prueba -d prueba2;
+V2: psql -h localhost -p 5432 -U adminplaces -d placesdb;
 
 Dumps
 psql -h localhost -p 5432 -U role_prueba -d prueba2 < create.sql
