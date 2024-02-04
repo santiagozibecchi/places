@@ -51,16 +51,3 @@ CREATE TABLE IF NOT EXISTS comment (
 -- Agregar la dirección:
 ALTER TABLE place
 ADD COLUMN address VARCHAR(150) NOT NULL;
-
-
--- AGREGAR DATOS
-
-
-WITH new_location AS (
-  INSERT INTO locations (place_id, country, address, latitude, longitude)
-  VALUES (DEFAULT, 'Nombre del País', 'Dirección del Lugar', 12.345, -67.890)
-  RETURNING location_id
-)
-INSERT INTO places (location_id, name, kind, total_view, latest_views, start_time, end_time, description)
-VALUES ((SELECT location_id FROM new_location), 'Nombre del Lugar', 'Tipo de Lugar', 100, 20, '08:00', '18:00', 'Descripción del Lugar');
-

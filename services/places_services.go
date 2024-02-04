@@ -29,6 +29,8 @@ func CreatePlace(placeLocation models.RequestPlaceLocation) (string, string, err
 			return "", "", errors.New("Todos los campos son obligatorios.")
 	}
 
+	// TODO: validar kind habilitados: restara
+
 	// Inicio de la transacción
 	// En este caso, primero es necesario crear una locacion para luego poder crear el lugar
 	// si falla la creacion de la locacion tmb falla la creación de lugar
