@@ -8,7 +8,7 @@ import (
 func DeterminateValidPlaceKind(kind string) (bool, error) {
 	// TODO: crear tabla
 	// Esto debería estar guardado en la DB
-	validKind := []string{"pubs", "restaurants", "parties"}
+	validKind := []string{"pub", "restaurant", "party"}
 	
 	if contains(validKind, kind) {
 		return true, nil
