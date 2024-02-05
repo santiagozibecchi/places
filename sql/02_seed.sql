@@ -115,3 +115,15 @@ SELECT location_id, NULL, NULL, NULL, NULL
 FROM location
 WHERE location = 'Buenos Aires'
 LIMIT 1;
+
+
+
+-- USUARIOS
+INSERT INTO user_account (email, gender, user_lastname, user_name, username)
+VALUES
+  ('juan_gomez@example.com', 'male', 'Gómez', 'Juan', 'juan_gomez'),
+  ('maria_fernandez@example.com', 'female', 'Fernández', 'María', 'maria_fernandez'),
+  ('carlos_lopez@example.com', 'male', 'López', 'Carlos', 'carlos_lopez'),
+  ('laura_martinez@example.com', 'female', 'Martínez', 'Laura', 'laura_martinez'),
+  ('pablo_rodriguez@example.com', 'male', 'Rodríguez', 'Pablo', 'pablo_rodriguez');
+
