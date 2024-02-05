@@ -88,8 +88,6 @@ func updateViewsPerRequest(id string, field string) (error) {
 
 func GetPlaceById(placeId string) (models.Place, error) {
 
-	// TODO! Deberia verificar si el ID existe primero!
-	
 	errMessage := updateViewsPerRequest(placeId, "total_view")
 	if errMessage != nil {
 		return models.Place{}, errMessage
@@ -238,34 +236,18 @@ func DeleteByID(id string) (string, error) {
 		return "", err
 	}
 
-	// Obtener el location_id asociado al place_id
-	var locationID int
-	err = Db.QueryRow("SELECT location_id FROM place WHERE place_id = $1", id).Scan(&locationID)
+	err = Db.QueryRow("SELECT place_name FROM place WHERE place_id = $1", id).Scan(&deletedPlaceName)
 	if err != nil {
 		return "", err
 	}
 
-	// Registros relacionados en la tabla weather
-	_, err = Db.Exec("DELETE FROM weather WHERE location_id = $1", locationID)
-	if err != nil {
-		return "", err
-	}
-
-	// Registros relacionados en la tabla place
 	_, err = Db.Exec("DELETE FROM place WHERE place_id = $1", id)
-	if err != nil {
-		return "", err
-	}
-
-	// Registros en la tabla location
-	_, err = Db.Exec("DELETE FROM location WHERE location_id = $1", locationID)
 	if err != nil {
 		return "", err
 	}
 
 	return deletedPlaceName, nil
 }
-	
 
 
 // TODO: Refactorizar esta funcion en utils.go de ser posible... doesnt look easy.. 🤔

@@ -81,6 +81,13 @@ func GetSpecificPlace(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
     placeId := vars["id"]
 
+	isValid, _ := services.IsIDValid(placeId, "place")
+	if !isValid {
+		response := fmt.Sprintf("El Lugar con el ID: '%s' no existe!", placeId)
+		w.Write([]byte(response))
+		return
+	}
+
 	place, err := services.GetPlaceById(placeId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -92,9 +99,17 @@ func GetSpecificPlace(w http.ResponseWriter, r *http.Request)  {
 	json.NewEncoder(w).Encode(place)
 }
 
-func DeletePlace(w http.ResponseWriter, r *http.Request)  {
+
+func DeletePlace(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-    id := vars["id"]
+	id := vars["id"]
+
+	isValid, _ := services.IsIDValid(id, "place")
+	if !isValid {
+		response := fmt.Sprintf("El Lugar con el ID: '%s' no existe!", id)
+		w.Write([]byte(response))
+		return
+	}
 
 	deletedPlaceName, err := services.DeleteByID(id)
 	if err != nil {
@@ -103,8 +118,8 @@ func DeletePlace(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-    w.WriteHeader(http.StatusOK)
-	response := fmt.Sprintf("Lugar '%s' eliminado con exito!", deletedPlaceName)
+	w.WriteHeader(http.StatusOK)
+	response := fmt.Sprintf("Lugar '%s' eliminado con éxito!", deletedPlaceName)
 	w.Write([]byte(response))
 }
 
