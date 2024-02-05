@@ -19,9 +19,9 @@ func GetWeatherByPlaceName(placeName string) (models.Weather, error) {
     	w.temperature,
     	w.temperature_max,
     	w.temperature_min 
-	FROM location l 
-	JOIN weather w ON l.location_id = w.location_id 
-	WHERE l.location = $1
+	FROM place p 
+	JOIN weather w ON p.location_id = w.location_id 
+	WHERE p.place_name = $1
 	LIMIT 1;`
 	
 	var weather models.Weather
