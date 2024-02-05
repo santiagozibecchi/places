@@ -160,7 +160,7 @@ func UpdateWeatherCity(placeId string) (error) {
 		return err
 	}
 
-	lng, lat, isLngAndLatCityInDB, err := checkLngAndLatByPlaceId(placeId)
+	lng, lat, isLngAndLatCityInDB, err := getLngAndLatByPlaceId(placeId)
 	if err != nil {
 		return err
 	}
@@ -182,10 +182,15 @@ func UpdateWeatherCity(placeId string) (error) {
 			return err
 		}
 
-		return setWeather(weather, locationId)
+		errAsignWeather := setWeather(weather, locationId)
+		if errAsignWeather != nil {
+			return err
+		}
+		
+		return nil
 	}
 	
-	fmt.Println("SE BUSCO LNG Y LAT MEDIANTE BASE DE DATOS!!!")
+	fmt.Println("SE BUSCO LNG Y LAT MEDIANTE BASE DE DATOS!")
 
 	weather, err := getWeatherLocation(lng, lat)
 	if err != nil {
@@ -212,7 +217,7 @@ func saveLngAndLatLocationToDB(lng, lat float64, city string) (error) {
 		return err
 	}
 
-	_, err = stmt.Exec(lng, lat, city)
+	_, err = stmt.Exec(lat, lng, city)
 	if err != nil {
 		return err
 	}
@@ -221,7 +226,7 @@ func saveLngAndLatLocationToDB(lng, lat float64, city string) (error) {
 
 }
 
-func checkLngAndLatByPlaceId(placeId string) (float64, float64, bool, error) {
+func getLngAndLatByPlaceId(placeId string) (float64, float64, bool, error) {
 
 	areNullFields, err := areLatLngNullByPlaceId(placeId)
 	if err != nil {
