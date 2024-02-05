@@ -45,24 +45,40 @@ func GetWeatherByPlaceName(placeName string) (models.Weather, error) {
 
 
 
-func GetWeatherByLocationId(locationId int) (models.Weather, error) {
-	
-	sqlStatement := fmt.Sprintf("select * from location l JOIN weather w ON l.location_id = w.location_id WHERE l.location_id = %v LIMIT 1;", locationId)
+func GetWeatherByLocationId(locationId int) (models.WeatherWithLocation, error) {
+	sqlStatement := fmt.Sprintf(`
+		SELECT 
+			w.weather_id,
+			w.location_id,
+			w.description,
+			w.temperature,
+			w.temperature_max,
+			w.temperature_min,
+			l.location
+		FROM 
+			location l 
+		JOIN 
+			weather w ON l.location_id = w.location_id
+		WHERE 
+			l.location_id = %v 
+		LIMIT 1;
+	`, locationId)
 
-	var weather models.Weather
-	err := Db.QueryRow(sqlStatement, locationId).Scan(
+	var weather models.WeatherWithLocation
+	err := Db.QueryRow(sqlStatement).Scan(
 		&weather.WeatherId,
 		&weather.LocationId,
 		&weather.Description,
 		&weather.Temperature,
 		&weather.TemperatureMax,
 		&weather.TemperatureMin,
+		&weather.Location,
 	)
 
 	if err == sql.ErrNoRows {
-		return models.Weather{}, fmt.Errorf("No se encontró ningún clima con el location_id: %v", locationId)
+		return models.WeatherWithLocation{}, fmt.Errorf("No se encontró ningún clima con el location_id: %v", locationId)
 	} else if err != nil {
-		return models.Weather{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
+		return models.WeatherWithLocation{}, fmt.Errorf("Unable to execute the query: %v.\nError: %v", sqlStatement, err)
 	}
 
 	return weather, nil

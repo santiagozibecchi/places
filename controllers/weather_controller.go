@@ -31,7 +31,7 @@ func GetWeatherByLocationId(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	
-    locationId, err := StringToInt(vars["location_id"])
+    locationId, err := StringToInt(vars["locationId"])
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
