@@ -26,7 +26,7 @@ func DeterminateValidCountry(kind string) (bool, error) {
 		return true, nil
 	}
 
-	return false, fmt.Errorf("No se encontro el pais en cuestión")
+	return false, fmt.Errorf("No corresponde a un País válido")
 }
 
 func DetermineValidSortOrder(sort string) (bool, error) {

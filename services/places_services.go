@@ -29,7 +29,15 @@ func CreatePlace(placeLocation models.RequestPlaceLocation) (string, string, err
 			return "", "", errors.New("Todos los campos son obligatorios.")
 	}
 
-	// TODO: validar kind habilitados: restara
+	isValidKind, errKind := utils.DeterminateValidPlaceKind(placeLocation.Kind);
+	if !isValidKind {
+		return fmt.Sprintf("%s tipo inválido", placeLocation.Kind), "", errKind
+	}
+
+	isValidCountry, errCountry := utils.DeterminateValidCountry(placeLocation.Country);
+	if !isValidCountry {
+		return fmt.Sprintf("%s país invalido", placeLocation.Country), "", errCountry
+	}
 
 	// Inicio de la transacción
 	// En este caso, primero es necesario crear una locacion para luego poder crear el lugar
@@ -51,12 +59,25 @@ func CreatePlace(placeLocation models.RequestPlaceLocation) (string, string, err
 	}()
 
 	var locationId int
-	// CREATION OF LOCATION
-    err = tx.QueryRow("INSERT INTO location (country, latitude, location, longitude) VALUES ($1, $2, $3, $4) RETURNING location_id;",
-	placeLocation.Country, nil, placeLocation.Location, nil).Scan(&locationId)
-    if err != nil {
-		panic(err)
-    }
+	var existingLocationID int
+
+	// Verificamos si el location_id existe en DB:
+	err = tx.QueryRow("SELECT location_id FROM location WHERE location = $1", placeLocation.Location).Scan(&existingLocationID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
+		// Si no se encontró locación alguna, creamos una nueva:
+		err = tx.QueryRow("INSERT INTO location (country, latitude, location, longitude) VALUES ($1, $2, $3, $4) RETURNING location_id;",
+			placeLocation.Country, nil, placeLocation.Location, nil).Scan(&locationId)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		// De existir la locacion, utilizamos la que ya se encuentra en DB.
+		locationId = existingLocationID
+	}
+
 
 	// CREATION OF THE PLACE
 	var placeName string

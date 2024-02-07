@@ -26,7 +26,8 @@ func CreatePlace(w http.ResponseWriter, r *http.Request) {
 	newPlaceName, placeId, err := services.CreatePlace(newPlace)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		w.Write([]byte("Error al crear el Lugar"))
+		response := fmt.Sprintf("Error al crear: %s", newPlaceName)
+		w.Write([]byte(response))
 		return
 	}
 
