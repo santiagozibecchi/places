@@ -51,3 +51,7 @@ CREATE TABLE IF NOT EXISTS comment (
 -- Agregar la dirección:
 ALTER TABLE place
 ADD COLUMN address VARCHAR(150) NOT NULL;
+
+ALTER TABLE user_account
+ADD CONSTRAINT valid_gender
+CHECK (gender IN ('male', 'female', 'other'));
